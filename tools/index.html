@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1c3b" />
+    <title>Hardware Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: { colors: { brand: { navy: "#0b1c3b", blue: "#0875e8" } } },
+        },
+      };
+    </script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          avenir,
+          poppins,
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        background: #f4f7fc;
+        color: #17243c;
+      }
+      .sidebar {
+        background: linear-gradient(180deg, #0b1c3b 0%, #07152e 100%);
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 11px 13px;
+        border-radius: 11px;
+        color: #c8d4e8;
+        font-size: 14px;
+        transition: 0.18s;
+      }
+      .nav-item:hover {
+        background: #1b3157;
+        color: white;
+      }
+      .nav-item.active {
+        background: #0875e8;
+        color: #fff;
+        box-shadow: 0 5px 16px #0875e833;
+      }
+      .nav-item svg {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+      .card {
+        background: white;
+        border: 1px solid #e8edf5;
+        border-radius: 14px;
+        box-shadow: 0 2px 8px #10254806;
+      }
+      .metric {
+        min-height: 112px;
+        border-radius: 13px;
+        color: white;
+        padding: 18px;
+        position: relative;
+        overflow: hidden;
+      }
+      .metric:after {
+        content: "";
+        position: absolute;
+        width: 115px;
+        height: 115px;
+        border-radius: 50%;
+        right: -32px;
+        top: -38px;
+        background: #ffffff12;
+      }
+      .metric-blue {
+        background: linear-gradient(135deg, #0874e8, #1597fa);
+      }
+      .metric-green {
+        background: linear-gradient(135deg, #00a85a, #08c77b);
+      }
+      .metric-orange {
+        background: linear-gradient(135deg, #f59b00, #ffb500);
+      }
+      .metric-purple {
+        background: linear-gradient(135deg, #883ee5, #a855f7);
+      }
+      .metric-icon {
+        background: #ffffff28;
+        border-radius: 12px;
+        padding: 10px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 13px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        transition: 0.15s;
+      }
+      .btn-primary {
+        background: #0875e8;
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #0665cb;
+      }
+      .btn-light {
+        background: #f2f6fb;
+        color: #33445e;
+      }
+      .btn-light:hover {
+        background: #e6edf6;
+      }
+      .table-wrap {
+        overflow: auto;
+      }
+      .table-wrap table {
+        width: 100%;
+        border-collapse: collapse;
+        white-space: nowrap;
+      }
+      .table-wrap th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #73839b;
+        background: #f8fafc;
+        text-align: left;
+        padding: 12px;
+      }
+      .table-wrap td {
+        font-size: 13px;
+        padding: 12px;
+        border-top: 1px solid #edf1f6;
+      }
+      .status {
+        padding: 4px 9px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: #06152c99;
+        z-index: 80;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+      }
+      .modal {
+        background: white;
+        border-radius: 16px;
+        width: min(520px, 100%);
+        max-height: 90vh;
+        overflow: auto;
+        box-shadow: 0 20px 70px #0003;
+      }
+      .field {
+        width: 100%;
+        border: 1px solid #dce4ef;
+        border-radius: 9px;
+        padding: 10px 12px;
+        font-size: 13px;
+        outline: none;
+        background: #fff;
+      }
+      .field:focus {
+        border-color: #1681ed;
+        box-shadow: 0 0 0 3px #1681ed18;
+      }
+      .label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #41536c;
+        margin-bottom: 6px;
+      }
+      .quick-tile {
+        min-height: 88px;
+        border-radius: 12px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 12px;
+        transition: 0.15s;
+      }
+      .quick-tile:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.04);
+      }
+      .hide-scroll::-webkit-scrollbar {
+        width: 5px;
+      }
+      .hide-scroll::-webkit-scrollbar-thumb {
+        background: #ffffff22;
+        border-radius: 20px;
+      }
+      @media (max-width: 900px) {
+        #sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.22s;
+          position: fixed;
+          z-index: 60;
+        }
+        #sidebar.open {
+          transform: translateX(0);
+        }
+        #mobile-overlay.show {
+          display: block;
+        }
+        .main-content {
+          margin-left: 0 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="mobile-overlay"
+      class="hidden fixed inset-0 bg-black/40 z-50"
+      onclick="toggleSidebar()"
+    ></div>
+    <div class="min-h-screen flex">
+      <aside
+        id="sidebar"
+        class="sidebar w-[235px] min-h-screen flex flex-col text-white shrink-0"
+      >
+        <div class="px-5 pt-6 pb-5 border-b border-white/10">
+          <div class="flex items-center gap-3">
+            <div
+              class="h-11 w-11 rounded-xl bg-blue-500 flex items-center justify-center"
+            >
+              <i data-lucide="house" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <div class="text-lg font-extrabold tracking-tight">Hardware</div>
+              <div class="text-[11px] text-amber-300 font-semibold">
+                Management System
+              </div>
+            </div>
+          </div>
+          <div class="text-[10px] text-slate-300 text-center mt-3">
+            Manage · Sell · Grow
+          </div>
+        </div>
+        <nav
+          id="nav"
+          class="px-3 py-4 space-y-1 flex-1 overflow-y-auto hide-scroll"
+        ></nav>
+        <div
+          class="mx-3 mb-4 p-4 rounded-xl border border-white/10 bg-white/5 text-center"
+        >
+          <div class="text-amber-400 text-xl mb-1">
+            <i data-lucide="chart-no-axes-combined"></i>
+          </div>
+          <p class="text-sm font-bold">Your Business</p>
+          <p class="text-xs text-amber-300">Our Priority</p>
+        </div>
+      </aside>
+      <main class="main-content flex-1 min-w-0 ml-2">
+        <header
+          class="h-[76px] bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center justify-between px-5 lg:px-7 gap-4"
+        >
+          <div class="flex items-center gap-3 flex-1 min-w-0">
+            <button
+              onclick="toggleSidebar()"
+              class="lg:hidden p-2 rounded-lg bg-slate-100"
+            >
+              <i data-lucide="menu"></i>
+            </button>
+            <div class="relative w-full max-w-[460px]">
+              <i
+                data-lucide="search"
+                class="absolute left-3 top-3 w-4 h-4 text-slate-400"
+              ></i
+              ><input
+                id="globalSearch"
+                class="field pl-10 bg-slate-50"
+                placeholder="Search products, invoices, customers..."
+                autocomplete="off"
+              />
+            </div>
+          </div>
+          <div class="hidden md:flex items-center gap-4 text-xs">
+            <span
+              class="text-green-700 bg-green-50 rounded-full px-3 py-1.5 font-semibold"
+              ><span
+                class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"
+              ></span
+              >System Online</span
+            ><span class="text-slate-500 border-l pl-4" id="dateDisplay"></span
+            ><button
+              onclick="notify('You are all caught up.', 'info')"
+              class="relative p-2 text-slate-600"
+            >
+              <i data-lucide="bell" class="w-5 h-5"></i
+              ><span
+                class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500"
+              ></span>
+            </button>
+          </div>
+          <div class="relative">
+            <button onclick="toggleProfile()" class="flex items-center gap-2">
+              <div
+                class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-700 font-bold"
+              >
+                A
+              </div>
+              <div class="hidden sm:block text-left">
+                <div class="text-sm font-bold">Admin</div>
+                <div class="text-[10px] text-slate-500">Administrator</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i>
+            </button>
+            <div
+              id="profileMenu"
+              class="hidden absolute right-0 top-12 bg-white border rounded-xl shadow-xl p-2 w-44 z-50"
+            >
+              <button
+                class="w-full text-left text-sm p-2 hover:bg-slate-50 rounded"
+                onclick="navigate('settings')"
+              >
+                Profile & Settings</button
+              ><button
+                class="w-full text-left text-sm p-2 hover:bg-slate-50 rounded text-red-600"
+                onclick="logout()"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </header>
+        <div class="p-4 lg:p-6 space-y-5" id="pageContent"></div>
+      </main>
+    </div>
+    <div id="modalRoot"></div>
+    <div id="toastRoot" class="fixed bottom-5 right-5 z-[100] space-y-2"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
